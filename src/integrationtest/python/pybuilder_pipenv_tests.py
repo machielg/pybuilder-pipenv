@@ -4,23 +4,7 @@ import unittest
 
 from integrationtest_support import IntegrationTestSupport
 
-
-class PybuilderPipenvTest(IntegrationTestSupport):
-
-    def test_something(self):
-        self.write_build_file("""
-from pybuilder.core import use_plugin, init
-
-use_plugin("python.core")
-use_plugin("python.install_dependencies")
-use_plugin("python.distutils")
-use_plugin("pypi:pybuilder-pipenv")
-name = "sample"
-
-default_task = 'prepare'
-""")
-        self.create_directory("src/main/python/")
-        self.write_file("Pipfile.lock", """
+LOCK_FILE = """
 {
     "_meta": {
         "hash": {
@@ -35,7 +19,12 @@ default_task = 'prepare'
                 "name": "pypi",
                 "url": "https://pypi.org/simple",
                 "verify_ssl": true
-            }
+            },
+            {
+                "name": "local",
+                "url": "http://local.pypi/simple",
+                "verify_ssl": true
+            }            
         ]
     },
     "default": {
@@ -63,14 +52,37 @@ default_task = 'prepare'
             "version": "==0.4.1"
         }
     }
-}""")
+}"""
+
+PYB_BUILD_FILE = """
+from pybuilder.core import use_plugin, init
+
+use_plugin("python.core")
+use_plugin("python.install_dependencies")
+use_plugin("python.distutils")
+use_plugin("pypi:pybuilder-pipenv")
+name = "sample"
+
+default_task = 'prepare'
+"""
+
+
+class PybuilderPipenvTest(IntegrationTestSupport):
+
+    def test_conversion_to_setup_py(self):
+        self.write_build_file(PYB_BUILD_FILE)
+        self.create_directory("src/main/python/")
+        self.write_file("Pipfile.lock", LOCK_FILE)
         reactor = self.prepare_reactor()
         reactor.build('publish')
 
         setup_py = "target/dist/sample-1.0.dev0/setup.py"
         self.assert_file_exists(setup_py)
         with open(self.full_path(setup_py)) as f:
-            setup_file = re.sub(' +', ' ', f.read().replace(os.linesep, ""))
+            content = f.read()
+            assert "tailer" not in content  # no develop dependencies
+
+            setup_file = re.sub(' +', ' ', content.replace(os.linesep, ""))
             assert "install_requires = [ 'humanize==0.5.1', 'tomlkit==0.5.2' ]" in setup_file
 
 

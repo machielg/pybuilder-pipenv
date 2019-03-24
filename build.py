@@ -9,14 +9,13 @@ use_plugin('python.integrationtest')
 use_plugin("copy_resources")
 
 name = "pybuilder-pipenv"
-default_task = ["clean", "analyze", "publish"]
+default_task = ["clean", "analyze", "run_integration_tests", "publish"]
 summary = "PyBuilder plugin using pipenv for dependency specification"
 authors = [Author("Machiel Keizer-Groeneveld", "machielg@gmail.com")]
 
 version = "1.0.0.dev"
-
-license = 'Apache'
-url = 'https://github.com/ImmobilienScout24/pybuilder_aws_plugin'
+license = 'GPL 3'
+url = 'https://github.com/machielg/pybuilder-pipenv'
 
 
 @init
@@ -29,24 +28,18 @@ def set_properties(project: Project):
     project.set_property('flake8_max_line_length', 130)
 
     project.set_property("copy_resources_target", "$dir_dist/pybuilder-pipenv")
-    project.get_property("copy_resources_glob").append("LICENSE*")
-    project.include_file("pybuilder-pipenv", "LICENSE.txt")
+    project.get_property("copy_resources_glob").append("LICENSE")
+    project.include_file("pybuilder-pipenv", "LICENSE")
 
     project.set_property("distutils_classifiers", [
         'Programming Language :: Python',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Development Status :: 4 - Beta',
-        'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
-        'Topic :: Software Development :: Build Tools',
-        'Topic :: Software Development :: Quality Assurance',
-        'Topic :: Software Development :: Testing'])
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Topic :: Software Development :: Build Tools'])
