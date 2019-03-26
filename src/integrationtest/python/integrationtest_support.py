@@ -127,6 +127,7 @@ class IntegrationTestSupport(unittest.TestCase):
         logger = StdOutLogger(threshold=Logger.DEBUG)
         execution_manager = ExecutionManager(logger)
         reactor = Reactor(logger, execution_manager)
+        print(self.tmp_directory)
         reactor.prepare_build(project_directory=self.tmp_directory)
         return reactor
 
